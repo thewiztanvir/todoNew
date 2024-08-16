@@ -1,77 +1,88 @@
-import React, { useState } from "react";
+// src/Todo.jsx
+import React, { useState, useContext } from "react";
 import "./App.css";
 import Header from "./Header.jsx";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import ThemeToggleButton from "./ThemeToggleButton.jsx";
+import TodoItem from "./TodoItem.jsx";
+import { ThemeContext } from "./ThemeContext";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"; // Import FontAwesomeIcon
+import { faEdit } from "@fortawesome/free-solid-svg-icons"; // Import the faEdit icon
 
-function Todo() {
-  const [todos, setTodos] = useState([]);
-  const [inputValue, setInputValue] = useState("");
-  const [editIndex, setEditIndex] = useState(null);
+function TodoApp() {
+  const [todos, setTodos] = useState([]);  // Manages list of todos
+  const [currentInputValue, setCurrentInputValue] = useState("");  // Manages input field value
+  const [todoIndexBeingEdited, setTodoIndexBeingEdited] = useState(null);  // Index of the todo being edited
+  const { theme } = useContext(ThemeContext);  // Current theme (light or dark)
 
-  const handleChange = (e) => setInputValue(e.target.value);
+  // Handles input field changes
+  const handleInputChange = (event) => {
+    setCurrentInputValue(event.target.value);
+  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (editIndex !== null) {
-      updateTodo();
+  // Handles form submission
+  const handleFormSubmit = (event) => {
+    event.preventDefault();
+    if (todoIndexBeingEdited !== null) {
+      updateExistingTodo();
     } else {
-      addTodo();
+      addNewTodo();
     }
-    setInputValue("");
+    setCurrentInputValue("");
   };
 
-  const addTodo = () => {
-    setTodos([...todos, { text: inputValue, completed: false }]);
+  // Adds a new todo
+  const addNewTodo = () => {
+    setTodos([...todos, { text: currentInputValue, completed: false }]);
   };
 
-  const updateTodo = () => {
+  // Updates an existing todo
+  const updateExistingTodo = () => {
     const updatedTodos = todos.map((todo, index) =>
-      index === editIndex ? { ...todo, text: inputValue } : todo
+      index === todoIndexBeingEdited ? { ...todo, text: currentInputValue } : todo
     );
     setTodos(updatedTodos);
-    setEditIndex(null);
+    setTodoIndexBeingEdited(null);
   };
 
-  const handleDelete = (index) => {
+  // Deletes a todo
+  const deleteTodo = (index) => {
     setTodos(todos.filter((_, i) => i !== index));
   };
 
-  const handleEdit = (index) => {
-    setInputValue(todos[index].text);
-    setEditIndex(index);
+  // Sets the todo for editing
+  const editTodo = (index) => {
+    setCurrentInputValue(todos[index].text);
+    setTodoIndexBeingEdited(index);
   };
 
-  const handleComplete = (index) => {
+  // Toggles the completed state of a todo
+  const toggleTodoComplete = (index) => {
     const updatedTodos = todos.map((todo, idx) =>
       idx === index ? { ...todo, completed: !todo.completed } : todo
     );
     setTodos(updatedTodos);
   };
 
-  const incompleteTodos = todos.filter((todo) => !todo.completed).length;
+  // Counts incomplete todos
+  const countIncompleteTodos = todos.filter((todo) => !todo.completed).length;
 
   return (
-    <div className="container">
+    <div className={`container ${theme}`}>
+      <ThemeToggleButton />
       <div className="card">
-        <Header
-          className="header"
-          todos_completed={incompleteTodos}
-          total_todos={todos.length}
-        />
-
+        <Header todos_completed={countIncompleteTodos} total_todos={todos.length} />
+        
         <div className="task-list-part">
-          {/* <h1>Today's Todo List</h1> */}
-          <form className="form" onSubmit={handleSubmit}>
+          <form className="form" onSubmit={handleFormSubmit}>
             <input
               placeholder="Write Your Next Task"
               type="text"
-              value={inputValue}
-              onChange={handleChange}
+              value={currentInputValue}
+              onChange={handleInputChange}
               className="input-style"
             />
             <button className="btn" type="submit">
-              {editIndex !== null ? (
+              {todoIndexBeingEdited !== null ? (
                 <FontAwesomeIcon icon={faEdit} className="icon" />
               ) : (
                 "+"
@@ -80,26 +91,14 @@ function Todo() {
           </form>
           <ul>
             {todos.map((todo, index) => (
-              <li
-                className={`task-list ${todo.completed ? "completed" : ""} listStyle`}
+              <TodoItem
                 key={index}
-              >
-                <input
-                  className="checkbox"
-                  type="radio"
-                  checked={todo.completed}
-                  onChange={() => handleComplete(index)}
-                />
-                {todo.text}
-                <div>
-                  <button onClick={() => handleEdit(index)}>
-                    <FontAwesomeIcon icon={faEdit} className="icon" />
-                  </button>
-                  <button onClick={() => handleDelete(index)}>
-                    <FontAwesomeIcon icon={faTrashAlt} className="icon" />
-                  </button>
-                </div>
-              </li>
+                todo={todo}
+                index={index}
+                onEdit={editTodo}
+                onDelete={deleteTodo}
+                onComplete={toggleTodoComplete}
+              />
             ))}
           </ul>
         </div>
@@ -108,4 +107,4 @@ function Todo() {
   );
 }
 
-export default Todo;
+export default TodoApp;

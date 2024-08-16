@@ -1,17 +1,30 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import './App.css';
+// src/index.jsx
+import React, { useContext, useEffect } from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import "./App.css";
 
-import Todo from './Todo.jsx';
-import reportWebVitals from './reportWebVitals';
-import TodoList from './App';
+import Todo from "./Todo.jsx";
+import reportWebVitals from "./reportWebVitals";
+import { ThemeProvider, ThemeContext } from "./ThemeContext";
 
+function AppWrapper() {
+  const { theme } = useContext(ThemeContext);
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+  useEffect(() => {
+    // Apply the current theme to the body element
+    document.body.className = theme;
+  }, [theme]);
+
+  return <Todo />;
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode className="appBG">
-    <Todo/>
+  <React.StrictMode>
+    <ThemeProvider>
+      <AppWrapper />
+    </ThemeProvider>
   </React.StrictMode>
 );
 

@@ -1,20 +1,21 @@
-import React from "react";
+// src/Header.jsx
+import React, { useContext } from "react";
 import "./App.css";
+import { ThemeContext } from "./ThemeContext";
 
 function Header({ todos_completed, total_todos }) {
+  const { theme } = useContext(ThemeContext);
+
   return (
-    <>
-      <div className="header">
-        <div className="header-top">
-          <h1>Task Done</h1>
-          <p>Keep it up</p>
-        </div>
-        <div className="header-text">
-          {todos_completed}/{total_todos}
-          
-        </div>
+    <div className={`header ${theme}`}>
+      <div className="header-top">
+        <h1>Task Done</h1>
+        <p>Keep it up</p>
       </div>
-    </>
+      <div className="header-text">
+        {todos_completed}/{total_todos}
+      </div>
+    </div>
   );
 }
 
